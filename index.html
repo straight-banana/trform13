@@ -87,7 +87,7 @@ input[type=checkbox]{appearance:auto}
 }
 </style></head><body>
 <div class="bar"><b>বেতন বিল ফরম ১৩</b><small id="st">অটো-সেভ চালু</small>
-<button id="clr">ফরম পরিষ্কার করুন</button><label class="page-toggle"><input type="checkbox" id="include-page-2" checked>পৃষ্ঠা ২ অন্তর্ভুক্ত করুন</label><label class="page-toggle"><input type="checkbox" id="bijoy-mode">Bijoy ইনপুট</label><button id="docx">DOCX ডাউনলোড</button><button id="print">প্রিন্ট</button><button class="pri" id="pdf">PDF ডাউনলোড</button></div>
+<button id="clr">ফরম পরিষ্কার করুন</button><button id="first">প্রথম ফরমে ফিরে যান</button><label class="page-toggle"><input type="checkbox" id="include-page-2" checked>পৃষ্ঠা ২ অন্তর্ভুক্ত করুন</label><label class="page-toggle"><input type="checkbox" id="bijoy-mode">Bijoy ইনপুট</label><button id="docx">DOCX ডাউনলোড</button><button id="print">প্রিন্ট</button><button class="pri" id="pdf">PDF ডাউনলোড</button></div>
 <div class="wrap">
 <details class="manual" open>
 <summary>ব্যবহারবিধি / Manual</summary>
@@ -172,6 +172,7 @@ T.innerHTML=h;
 const sum=g=>{let t=0;document.querySelectorAll(`[data-k^="${g}"][data-k$="a1"]`).forEach(e=>{const a=parseFloat(en(e.value))||0,p=parseFloat(en(e.closest('tr').querySelector('[data-k$="a2"]').value))||0;t+=Math.round(a*100)+Math.round(p)});return t};
 const show=(id,v)=>{const neg=v<0;v=Math.abs(v);const t=Math.floor(v/100),p=v%100;document.getElementById(id+'a').textContent=(neg?'-':'')+bn(t);document.getElementById(id+'p').textContent=bn(String(p).padStart(2,'0'))};
 const K="bill13";const all=()=>document.querySelectorAll('[data-k]');
+const defaults=new Map();all().forEach(e=>defaults.set(e,e.isContentEditable?e.textContent:e.type=='checkbox'?e.checked:e.value));
 const page2Toggle=document.getElementById('include-page-2');
 function togglePage2(){document.getElementById('p2').hidden=!page2Toggle.checked}
 function calc(){const a=sum('s'),b=sum('d');show('s',a);show('d',b);show('b',a-b)}
@@ -260,4 +261,5 @@ document.getElementById('docx').onclick=async()=>{
   finally{button.disabled=false}
 };
 document.getElementById('clr').onclick=()=>{if(!confirm('নাম থেকে তারিখ পর্যন্ত ঘর ও টেবিলের সব সংখ্যা মুছে ফেলবেন?'))return;T.querySelectorAll('input.n').forEach(e=>e.value='');['name','desig','nid','gpf','pli','tin','tok','tokd','vou','voud'].forEach(k=>{const e=document.querySelector(`input[data-k="${k}"]`);if(e)e.value=''});calc();save()};
+document.getElementById('first').onclick=()=>{if(!confirm('সব তথ্য মুছে ফরমটি প্রথম অবস্থায় ফিরিয়ে নেবেন?'))return;try{localStorage.removeItem(K)}catch(e){}all().forEach(e=>{const d=defaults.get(e);e.isContentEditable?e.textContent=d:e.type=='checkbox'?e.checked=d:e.value=d});document.querySelectorAll('input:not([data-k]):not([type="checkbox"])').forEach(e=>{if(!e.closest('.page-toggle'))e.value=''});page2Toggle.checked=true;togglePage2();calc();toBnNumbers();save()};
 </script></body></html>
