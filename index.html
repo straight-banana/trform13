@@ -259,5 +259,5 @@ document.getElementById('docx').onclick=async()=>{
   }catch(e){console.error(e);alert('DOCX তৈরি করা যায়নি। আবার চেষ্টা করুন.')}
   finally{button.disabled=false}
 };
-document.getElementById('clr').onclick=()=>{if(!confirm('সব ঘর মুছে ফেলবেন?'))return;all().forEach(e=>e.isContentEditable?e.textContent='':e.type=='checkbox'?e.checked=false:e.value='');calc();save()};
+document.getElementById('clr').onclick=()=>{if(!confirm('নাম থেকে তারিখ পর্যন্ত ঘর ও টেবিলের সব সংখ্যা মুছে ফেলবেন?'))return;T.querySelectorAll('input.n').forEach(e=>e.value='');['name','desig','nid','gpf','pli','tin','tok','tokd','vou','voud'].forEach(k=>{const e=document.querySelector(`input[data-k="${k}"]`);if(e)e.value=''});calc();save()};
 </script></body></html>
