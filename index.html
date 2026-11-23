@@ -87,7 +87,7 @@ input[type=checkbox]{appearance:auto}
 }
 </style></head><body>
 <div class="bar"><b>বেতন বিল ফরম ১৩</b><small id="st">অটো-সেভ চালু</small>
-<button id="clr">ফরম পরিষ্কার করুন</button><label class="page-toggle"><input type="checkbox" id="include-page-2" checked>পৃষ্ঠা ২ অন্তর্ভুক্ত করুন</label><button id="docx">DOCX ডাউনলোড</button><button id="print">প্রিন্ট</button><button class="pri" id="pdf">PDF ডাউনলোড</button></div>
+<button id="clr">ফরম পরিষ্কার করুন</button><label class="page-toggle"><input type="checkbox" id="include-page-2" checked>পৃষ্ঠা ২ অন্তর্ভুক্ত করুন</label><label class="page-toggle"><input type="checkbox" id="bijoy-mode">Bijoy ইনপুট</label><button id="docx">DOCX ডাউনলোড</button><button id="print">প্রিন্ট</button><button class="pri" id="pdf">PDF ডাউনলোড</button></div>
 <div class="wrap">
 <details class="manual" open>
 <summary>ব্যবহারবিধি / Manual</summary>
@@ -96,6 +96,7 @@ input[type=checkbox]{appearance:auto}
 <li>সংখ্যা ও টাকার অঙ্ক স্বয়ংক্রিয়ভাবে বাংলা সংখ্যায় রূপান্তর হবে। বেতন ও কর্তন-এর মোট হিসাব নিজে নিজে হবে।</li>
 <li>তথ্য ব্রাউজারে স্বয়ংক্রিয়ভাবে সংরক্ষিত হবে। নতুন ফরম শুরু করতে “ফরম পরিষ্কার করুন” বেছে নিন।</li>
 <li>“পৃষ্ঠা ২ অন্তর্ভুক্ত করুন” থেকে দ্বিতীয় পৃষ্ঠা যোগ বা বাদ দিতে পারবেন।</li>
+<li>Bijoy কীবোর্ড বা Bijoy থেকে কপি করা বাংলা লেখার জন্য “Bijoy ইনপুট” চালু করুন। চালু অবস্থায় ASCII কীবোর্ড লেআউটটি Bijoy হিসাবে রূপান্তর হবে।</li>
 <li>প্রিন্ট ডায়ালগ খোলার জন্য “প্রিন্ট” অথবা “PDF ডাউনলোড” বেছে নিন। প্রিন্টার হিসেবে “A4” সাইজ নির্বাচন করে “Save as PDF” দিন।</li>
 </ol>
 </details>
@@ -137,6 +138,29 @@ input[type=checkbox]{appearance:auto}
 <script>
 const bn=s=>String(s).replace(/\d/g,d=>"০১২৩৪৫৬৭৮৯"[d]);
 const en=s=>String(s).replace(/[০-৯]/g,d=>"০১২৩৪৫৬৭৮৯".indexOf(d));
+const bijoyMap={
+'Av':'আ','A':'অ','B':'ই','C':'ঈ','D':'উ','E':'ঊ','F':'ঋ','G':'এ','H':'ঐ','I':'ও','J':'ঔ',
+'K':'ক','L':'খ','M':'গ','N':'ঘ','O':'ঙ','P':'চ','Q':'ছ','R':'জ','S':'ঝ','T':'ঞ',
+'U':'ট','V':'ঠ','W':'ড','X':'ঢ','Y':'ণ','Z':'ত','_':'থ','`':'দ','a':'ধ','b':'ন','c':'প','d':'ফ','e':'ব','f':'ভ','g':'ম','h':'য','i':'র','j':'ল','k':'শ','l':'ষ','m':'স','n':'হ',
+'0':'০','1':'১','2':'২','3':'৩','4':'৪','5':'৫','6':'৬','7':'৭','8':'৮','9':'৯',
+'‡':'ি','¨':'ু','&':'ু','„':'ূ','®':'্র','›':'ৃ','œ':'œ','z':'্য','y':'ৎ','r':'র',
+'v':'া','´':'ী','™':'ী','š':'ৈ','’':'ং','š':'ৈ','°':'ং','/':'-'
+};
+const bijoyToUnicode=text=>{
+ text=String(text);
+ if(!/[A-Za-z0-9`_&‡¨„®›œ]/.test(text))return text;
+ const sequences=Object.keys(bijoyMap).sort((a,b)=>b.length-a.length);
+ let out='';
+ for(let pos=0;pos<text.length;){
+  const pair=text.slice(pos,pos+2), one=text[pos];
+  if(bijoyMap[pair]!==undefined){out+=bijoyMap[pair];pos+=2}
+  else if(bijoyMap[one]!==undefined){out+=bijoyMap[one];pos++}
+  else{out+=one;pos++}
+ }
+ out=out.replace(/([কখগঘঙচছজঝঞটঠডঢণতথদধনপফবভমযরলশষসহ])(্র)/g,'্র$1');
+ for(let pass=0;pass<3;pass++)out=out.replace(/ি([কখগঘঙচছজঝঞটঠডঢণতথদধনপফবভমযরলশষসহ])/g,'$1ি');
+ return out.replace(/\u005f/g,'থ');
+};
 const sal=[["৩১১১১০১","মূল বেতন (অফিসার)"],["৩১১১৩০৬","শিক্ষা ভাতা"],["৩১১১৩১০","বাড়িভাড়া ভাতা"],["৩১১১৩১১","চিকিৎসা ভাতা"],["৩১১১৩১২","মোবাইল/সেলফোন ভাতা"],["৩২৫৮১৪০","মোটরযান রক্ষণাবেক্ষণ ব্যয়"],["",""],["",""]];
 const ded=[["১১৬২১০১","স্ট্যাম্প ডিউটি"],["১৪১১২০২","সরকারি কর্মচারীকে প্রদত্ত ঋণের সুদ"],["১৪২২৪০৪","পানি ও পয়ঃনিষ্কাশন ব্যবস্থা চার্জ"],["১৪৪১২০৪","পৌরকর"],["৭২১৫১০১","গৃহনির্মাণ ঋণ"],["৭২১৫১০৪","মোটরগাড়ি ঋণ"],["৭২১৫১০৩","সুদমুক্ত ঋণ"],["৭২১৫১০৫","মোটর সাইকেল ঋণ"],["৭২১৫১০২","কম্পিউটার ঋণ"],["৮১১২২০১","সাধারণ ভবিষ্য তহবিল (সিভিল)"],["৮১৭২৪০১","তিতাস গ্যাস বিল"],["৮১৭২৪০২","বাখরাবাদ গ্যাস বিল"],["৮১৭২৪০৩","জালালাবাদ গ্যাস বিল"],["৮১৭২৪০৪","কর্ণফুলী গ্যাস বিল"],["৮১৭২৫০৩","কর্মচারী কল্যাণ তহবিল"],["৮১৭২৫০৪","কর্মচারী যৌথবীমা তহবিল"],["",""],["",""]];
 const T=document.getElementById('tb');let h='<tr><th style="width:105px;font-size:10px">অর্থনৈতিক কোড</th><th>বিবরণ</th><th colspan=2 style="width:120px">হার</th><th colspan=2 style="width:150px">টাকার অঙ্ক</th></tr><tr><th></th><th></th><th style="font-size:10px">টাকা</th><th style="font-size:10px">পয়সা</th><th style="font-size:10px">টাকা</th><th style="font-size:10px">পয়সা</th></tr>';
@@ -156,6 +180,23 @@ try{const o=JSON.parse(localStorage.getItem(K)||'{}');all().forEach(e=>{if(e.dat
 const toBnNumbers=()=>document.querySelectorAll('.n, input[inputmode="numeric"], input[inputmode="decimal"]').forEach(e=>{
   e.value=bn(e.value);
 });
+const bijoyMode=document.getElementById('bijoy-mode');
+bijoyMode.checked=localStorage.getItem('bill13-bijoy')==='1';
+bijoyMode.addEventListener('change',()=>localStorage.setItem('bill13-bijoy',bijoyMode.checked?'1':'0'));
+const normalizeBijoyField=element=>{
+  if(!bijoyMode.checked)return;
+  if(element.classList?.contains('n')||element.getAttribute('inputmode')==='numeric'||element.getAttribute('inputmode')==='decimal')return;
+  if(element.isContentEditable){
+    if(element.dataset.bijoyConverting)return;
+    element.dataset.bijoyConverting='1';
+    element.textContent=bijoyToUnicode(element.textContent);
+    delete element.dataset.bijoyConverting;
+  }else if(element.tagName==='INPUT' && element.type!=='checkbox'){
+    const end=element.selectionStart;
+    element.value=bijoyToUnicode(element.value);
+    if(end!==null){try{element.setSelectionRange(end,end)}catch(_){}}
+  }
+};
 document.querySelectorAll('.n, input[inputmode="numeric"], input[inputmode="decimal"]').forEach(e=>{
   e.addEventListener('input',()=>{
     const end=e.selectionStart;
@@ -183,7 +224,11 @@ document.querySelectorAll('.sheet td, .sheet .r').forEach(cell=>{
   });
 });
 
-document.addEventListener('input',()=>{toBnNumbers();calc();save()});document.addEventListener('change',()=>{toBnNumbers();save();});calc();toBnNumbers();
+document.addEventListener('input',event=>{
+  normalizeBijoyField(event.target);
+  toBnNumbers();calc();save();
+});
+document.addEventListener('change',()=>{toBnNumbers();save();});calc();toBnNumbers();
 page2Toggle.addEventListener('change',togglePage2);togglePage2();
 const openPrintDialog=()=>window.print();
 document.getElementById('print').onclick=openPrintDialog;
